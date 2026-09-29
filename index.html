@@ -220,10 +220,10 @@
     <h1>🏃 러닝 대회 참가자 공지 생성기</h1>
     <div class="sub-title">대회와 참가자를 등록하고 카톡 공지용 글을 바로 복사하세요!</div>
 
-    <!-- 기본 공지 타이틀 (날짜 안내) -->
+    <!-- 기본 공지 타이틀 -->
     <div class="input-row" style="margin-bottom: 16px;">
-      <label>📌 공지 기간 타이틀</label>
-      <input type="text" id="noticeTitle" value="※ 대회참가자 (10월 3, 4, 5일)" placeholder="예: ※ 대회참가자 (10월 3, 4, 5일)" oninput="renderPreview()">
+      <label>📌 공지 타이틀</label>
+      <input type="text" id="noticeTitle" value="※ 대회참가자" placeholder="예: ※ 대회참가자" oninput="renderPreview()">
     </div>
 
     <!-- 참가 입력 폼 -->
@@ -231,7 +231,7 @@
       <div class="grid-2">
         <div class="input-row">
           <label>대회 이름</label>
-          <input type="text" id="raceName" placeholder="예: 양주, 트랜스 제주">
+          <input type="text" id="raceName" placeholder="예: 동아마라톤, 춘천마라톤">
         </div>
         <div class="input-row">
           <label>일자 (선택)</label>
@@ -270,7 +270,6 @@
   </div>
 
   <script>
-    // 로컬 스토리지에서 이전 데이터 불러오기
     let entries = JSON.parse(localStorage.getItem('race_entries') || '[]');
 
     function saveToStorage() {
@@ -278,7 +277,6 @@
       localStorage.setItem('race_notice_title', document.getElementById('noticeTitle').value);
     }
 
-    // 엔터키 입력 시 추가
     document.getElementById('runners').addEventListener('keypress', function (e) {
       if (e.key === 'Enter') addEntry();
     });
@@ -300,10 +298,8 @@
         return;
       }
 
-      // 쉼표 단위로 이름 나누기
       const newRunners = runnersInput.split(',').map(s => s.trim()).filter(Boolean);
 
-      // 리스트에 추가
       entries.push({
         id: Date.now(),
         raceName,
@@ -316,7 +312,6 @@
       renderList();
       renderPreview();
 
-      // 이름 입력창 초기화 및 포커스
       document.getElementById('runners').value = '';
       document.getElementById('raceCourse').value = '';
       document.getElementById('runners').focus();
@@ -357,14 +352,12 @@
       `).join('');
     }
 
-    // 카톡 텍스트 조립
     function generateNoticeText() {
       const header = document.getElementById('noticeTitle').value.trim();
       if (entries.length === 0) {
         return header + '\n\n(참가자를 등록하면 여기에 카톡 공지가 만들어집니다)';
       }
 
-      // 대회 이름 + 일자 기준으로 그룹핑
       const raceGroups = {};
 
       entries.forEach(item => {
@@ -380,7 +373,6 @@
       for (const [groupName, items] of Object.entries(raceGroups)) {
         result += `* ${groupName}\n`;
         
-        // 코스별로 묶기
         const courseGroups = {};
         const noCourseRunners = [];
 
@@ -393,12 +385,10 @@
           }
         });
 
-        // 코스가 있는 경우 출력
         for (const [course, runners] of Object.entries(courseGroups)) {
           result += `ㆍ${course} : ${runners.join(', ')}\n`;
         }
 
-        // 코스 없이 이름만 있는 경우 출력
         if (noCourseRunners.length > 0) {
           result += `ㆍ${noCourseRunners.join(', ')}\n`;
         }
@@ -414,7 +404,6 @@
       saveToStorage();
     }
 
-    // 클립보드 복사
     function copyToClipboard() {
       const text = generateNoticeText();
       navigator.clipboard.writeText(text).then(() => {
@@ -424,10 +413,13 @@
       });
     }
 
-    // 초기 실행
     window.onload = function() {
       const savedTitle = localStorage.getItem('race_notice_title');
-      if (savedTitle) document.getElementById('noticeTitle').value = savedTitle;
+      if (savedTitle && !savedTitle.includes('10월 3, 4, 5일')) {
+        document.getElementById('noticeTitle').value = savedTitle;
+      } else {
+        document.getElementById('noticeTitle').value = '※ 대회참가자';
+      }
       renderList();
       renderPreview();
     };
