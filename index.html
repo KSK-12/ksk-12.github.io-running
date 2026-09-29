@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🏃 러닝 대회 참가자 공지 생성기</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", sans-serif;
+    }
+
+    body {
+      background-color: #f4f6f8;
+      color: #333;
+      padding: 20px 14px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 520px;
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 24px 20px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+    }
+
+    h1 {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #1a202c;
+      text-align: center;
+      margin-bottom: 6px;
+    }
+
+    .sub-title {
+      font-size: 0.85rem;
+      color: #718096;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    /* 입력 영역 */
+    .form-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+
+    .input-row {
+      margin-bottom: 12px;
+    }
+
+    .input-row:last-child {
+      margin-bottom: 0;
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #4a5568;
+      margin-bottom: 6px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 11px 12px;
+      border-radius: 10px;
+      border: 1px solid #cbd5e1;
+      font-size: 0.95rem;
+      outline: none;
+      background: #ffffff;
+    }
+
+    input:focus {
+      border-color: #3182ce;
+      box-shadow: 0 0 0 2px rgba(49, 130, 206, 0.2);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .btn-add {
+      width: 100%;
+      background: #3182ce;
+      color: #ffffff;
+      border: none;
+      padding: 13px;
+      font-size: 1rem;
+      font-weight: 700;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-top: 12px;
+      transition: background 0.15s;
+    }
+
+    .btn-add:hover {
+      background: #2b6cb0;
+    }
+
+    /* 추가된 목록 리스트 */
+    .list-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .list-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #2d3748;
+    }
+
+    .btn-clear {
+      background: none;
+      border: none;
+      color: #e53e3e;
+      font-size: 0.8rem;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    .item-list {
+      max-height: 220px;
+      overflow-y: auto;
+      margin-bottom: 20px;
+      border: 1px solid #edf2f7;
+      border-radius: 10px;
+      padding: 8px;
+      background: #fafafa;
+    }
+
+    .empty-msg {
+      text-align: center;
+      font-size: 0.85rem;
+      color: #a0aec0;
+      padding: 24px 0;
+    }
+
+    .list-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #ffffff;
+      padding: 9px 12px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      margin-bottom: 6px;
+      font-size: 0.85rem;
+    }
+
+    .list-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .del-btn {
+      background: none;
+      border: none;
+      color: #a0aec0;
+      font-size: 1rem;
+      cursor: pointer;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .del-btn:hover {
+      color: #e53e3e;
+      background: #fed7d7;
+    }
+
+    /* 미리보기 & 복사 */
+    .preview-box {
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 14px;
+      font-family: monospace, sans-serif;
+      font-size: 0.88rem;
+      white-space: pre-wrap;
+      word-break: break-all;
+      color: #1e293b;
+      min-height: 120px;
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+
+    .btn-copy {
+      width: 100%;
+      background: #fae100;
+      color: #371d1e;
+      border: none;
+      padding: 14px;
+      font-size: 1.05rem;
+      font-weight: 800;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(250, 225, 0, 0.35);
+      transition: transform 0.1s;
+    }
+
+    .btn-copy:active {
+      transform: scale(0.98);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>🏃 러닝 대회 참가자 공지 생성기</h1>
+    <div class="sub-title">대회와 참가자를 등록하고 카톡 공지용 글을 바로 복사하세요!</div>
+
+    <!-- 기본 공지 타이틀 (날짜 안내) -->
+    <div class="input-row" style="margin-bottom: 16px;">
+      <label>📌 공지 기간 타이틀</label>
+      <input type="text" id="noticeTitle" value="※ 대회참가자 (10월 3, 4, 5일)" placeholder="예: ※ 대회참가자 (10월 3, 4, 5일)" oninput="renderPreview()">
+    </div>
+
+    <!-- 참가 입력 폼 -->
+    <div class="form-card">
+      <div class="grid-2">
+        <div class="input-row">
+          <label>대회 이름</label>
+          <input type="text" id="raceName" placeholder="예: 양주, 트랜스 제주">
+        </div>
+        <div class="input-row">
+          <label>일자 (선택)</label>
+          <input type="text" id="raceDate" placeholder="예: 4일, 10/4">
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="input-row">
+          <label>코스 / 종목 (선택)</label>
+          <input type="text" id="raceCourse" placeholder="예: 10km, 하프, 풀">
+        </div>
+        <div class="input-row">
+          <label>참가자 이름 (쉼표 구분)</label>
+          <input type="text" id="runners" placeholder="예: 홍길동, 김철수">
+        </div>
+      </div>
+
+      <button class="btn-add" onclick="addEntry()">➕ 명단에 추가하기</button>
+    </div>
+
+    <!-- 추가된 목록 -->
+    <div class="list-header">
+      <span class="list-title">등록된 명단 내역</span>
+      <button class="btn-clear" onclick="clearAll()">전체 비우기</button>
+    </div>
+    <div class="item-list" id="itemList">
+      <div class="empty-msg">아직 추가된 참가자가 없습니다.</div>
+    </div>
+
+    <!-- 카톡 공지 미리보기 & 복사 -->
+    <label>💬 카카오톡 공지 미리보기</label>
+    <div class="preview-box" id="previewText"></div>
+
+    <button class="btn-copy" onclick="copyToClipboard()">💛 카카오톡 공지 복사하기</button>
+  </div>
+
+  <script>
+    // 로컬 스토리지에서 이전 데이터 불러오기
+    let entries = JSON.parse(localStorage.getItem('race_entries') || '[]');
+
+    function saveToStorage() {
+      localStorage.setItem('race_entries', JSON.stringify(entries));
+      localStorage.setItem('race_notice_title', document.getElementById('noticeTitle').value);
+    }
+
+    // 엔터키 입력 시 추가
+    document.getElementById('runners').addEventListener('keypress', function (e) {
+      if (e.key === 'Enter') addEntry();
+    });
+
+    function addEntry() {
+      const raceName = document.getElementById('raceName').value.trim();
+      const raceDate = document.getElementById('raceDate').value.trim();
+      const raceCourse = document.getElementById('raceCourse').value.trim();
+      const runnersInput = document.getElementById('runners').value.trim();
+
+      if (!raceName) {
+        alert('대회 이름을 입력해 주세요!');
+        document.getElementById('raceName').focus();
+        return;
+      }
+      if (!runnersInput) {
+        alert('참가자 이름을 입력해 주세요!');
+        document.getElementById('runners').focus();
+        return;
+      }
+
+      // 쉼표 단위로 이름 나누기
+      const newRunners = runnersInput.split(',').map(s => s.trim()).filter(Boolean);
+
+      // 리스트에 추가
+      entries.push({
+        id: Date.now(),
+        raceName,
+        raceDate,
+        raceCourse,
+        runners: newRunners
+      });
+
+      saveToStorage();
+      renderList();
+      renderPreview();
+
+      // 이름 입력창 초기화 및 포커스
+      document.getElementById('runners').value = '';
+      document.getElementById('raceCourse').value = '';
+      document.getElementById('runners').focus();
+    }
+
+    function removeEntry(id) {
+      entries = entries.filter(item => item.id !== id);
+      saveToStorage();
+      renderList();
+      renderPreview();
+    }
+
+    function clearAll() {
+      if (confirm('등록된 모든 참가 명단을 초기화할까요?')) {
+        entries = [];
+        saveToStorage();
+        renderList();
+        renderPreview();
+      }
+    }
+
+    function renderList() {
+      const listEl = document.getElementById('itemList');
+      if (entries.length === 0) {
+        listEl.innerHTML = '<div class="empty-msg">아직 추가된 참가자가 없습니다.</div>';
+        return;
+      }
+
+      listEl.innerHTML = entries.map(item => `
+        <div class="list-item">
+          <div>
+            <strong>${item.raceName}</strong>${item.raceDate ? ` (${item.raceDate})` : ''} 
+            ${item.raceCourse ? `[${item.raceCourse}]` : ''} : 
+            <span>${item.runners.join(', ')}</span>
+          </div>
+          <button class="del-btn" onclick="removeEntry(${item.id})">✕</button>
+        </div>
+      `).join('');
+    }
+
+    // 카톡 텍스트 조립
+    function generateNoticeText() {
+      const header = document.getElementById('noticeTitle').value.trim();
+      if (entries.length === 0) {
+        return header + '\n\n(참가자를 등록하면 여기에 카톡 공지가 만들어집니다)';
+      }
+
+      // 대회 이름 + 일자 기준으로 그룹핑
+      const raceGroups = {};
+
+      entries.forEach(item => {
+        const groupKey = item.raceDate ? `${item.raceName}(${item.raceDate})` : item.raceName;
+        if (!raceGroups[groupKey]) {
+          raceGroups[groupKey] = [];
+        }
+        raceGroups[groupKey].push(item);
+      });
+
+      let result = header ? `${header}\n\n` : '';
+
+      for (const [groupName, items] of Object.entries(raceGroups)) {
+        result += `* ${groupName}\n`;
+        
+        // 코스별로 묶기
+        const courseGroups = {};
+        const noCourseRunners = [];
+
+        items.forEach(item => {
+          if (item.raceCourse) {
+            if (!courseGroups[item.raceCourse]) courseGroups[item.raceCourse] = [];
+            courseGroups[item.raceCourse].push(...item.runners);
+          } else {
+            noCourseRunners.push(...item.runners);
+          }
+        });
+
+        // 코스가 있는 경우 출력
+        for (const [course, runners] of Object.entries(courseGroups)) {
+          result += `ㆍ${course} : ${runners.join(', ')}\n`;
+        }
+
+        // 코스 없이 이름만 있는 경우 출력
+        if (noCourseRunners.length > 0) {
+          result += `ㆍ${noCourseRunners.join(', ')}\n`;
+        }
+
+        result += '\n';
+      }
+
+      return result.trimEnd();
+    }
+
+    function renderPreview() {
+      document.getElementById('previewText').innerText = generateNoticeText();
+      saveToStorage();
+    }
+
+    // 클립보드 복사
+    function copyToClipboard() {
+      const text = generateNoticeText();
+      navigator.clipboard.writeText(text).then(() => {
+        alert('카카오톡 공지가 복사되었습니다!\n단톡방에 바로 붙여넣기(Ctrl+V)하세요. 🏃');
+      }).catch(() => {
+        alert('복사에 실패했습니다. 아래 텍스트를 직접 드래그해서 복사해 주세요.');
+      });
+    }
+
+    // 초기 실행
+    window.onload = function() {
+      const savedTitle = localStorage.getItem('race_notice_title');
+      if (savedTitle) document.getElementById('noticeTitle').value = savedTitle;
+      renderList();
+      renderPreview();
+    };
+  </script>
+</body>
+</html>
